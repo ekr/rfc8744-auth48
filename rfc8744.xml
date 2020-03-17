@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
 <!DOCTYPE rfc SYSTEM "rfc2629-xhtml.ent">
 <rfc number="8744" consensus="true" xmlns:xi="http://www.w3.org/2001/XInclude"
-     ipr="trust200902" 
+     ipr="trust200902"
      category="info" docName="draft-ietf-tls-sni-encryption-09" obsoletes=""
      updates="" submissionType="IETF" xml:lang="en" tocInclude="true"
-     symRefs="true" sortRefs="true" version="3"> 
+     symRefs="true" sortRefs="true" version="3">
   <!-- xml2rfc v2v3 conversion 2.37.3 -->
   <front>
 
     <title abbrev="TLS-SNI Encryption Requirements">Issues and Requirements
-    for Server Name Identification (SNI) Encryption in TLS</title> 
+    for Server Name Identification (SNI) Encryption in TLS</title>
     <seriesInfo name="RFC" value="8744"/>
     <author initials="C." surname="Huitema" fullname="Christian Huitema">
       <organization>Private Octopus Inc.</organization>
@@ -27,7 +27,7 @@
       </address>
     </author>
     <author initials="E." surname="Rescorla" fullname="Eric Rescorla">
-      <organization>RTFM, Inc.</organization>
+      <organization>Mozilla</organization>
       <address>
         <postal>
           <street/>
@@ -70,9 +70,9 @@ user and services. These channels are getting progressively closed.
 A growing fraction of
 Internet communication is encrypted, mostly using Transport Layer Security
 (TLS) <xref target="RFC8446" format="default"/>.
-Progressive deployment of solutions like DNS in
+Progressive deployment of solutions like DNS over
 TLS <xref target="RFC7858" format="default"/> and DNS over HTTPS <xref
-target="RFC8484" format="default"/> 
+target="RFC8484" format="default"/>
 mitigates the disclosure of DNS information. More and
 more services are colocated on multiplexed servers, loosening the
 relation between IP address and web service. For example, in virtual hosting
@@ -81,8 +81,8 @@ and the IP address and port do not uniquely identify a service. In cloud or
 Content Delivery Network (CDN) solutions, a given platform hosts the services
 or servers of a lot of organizations, and looking up what netblock
 an IP address belongs to reveals little. However, multiplexed servers
-rely on the Service Name Information (SNI) TLS extension <xref
-target="RFC6066" format="default"/> to direct connections 
+rely on the Server Name Information (SNI) TLS extension <xref
+target="RFC6066" format="default"/> to direct connections
 to the appropriate service implementation. This protocol element
 is transmitted in cleartext. As the other methods of monitoring get
 blocked, monitoring focuses on the cleartext SNI. The purpose
@@ -94,10 +94,10 @@ of proper SNI encryption solutions is difficult.
 In the past, there have been multiple attempts at defining SNI encryption.
 These attempts have generally floundered, because the simple designs fail
 to mitigate several of the attacks listed in <xref target="snisecreq"
-format="default"/>. In the absence of 
+format="default"/>. In the absence of
 a TLS-level solution, the most popular approach to SNI privacy for web
 services is HTTP-level fronting, which we discuss in <xref
-target="httpfronting" format="default"/>. 
+target="httpfronting" format="default"/>.
 </t>
       <t>This document does not present the design of a solution but
 provides guidelines for evaluating proposed solutions. (The review of
@@ -111,7 +111,7 @@ Protocol Negotiation (ALPN) parameters of TLS is discussed in
     <section anchor="history-of-the-tls-sni-extension" numbered="true" toc="default">
       <name>History of the TLS SNI Extension</name>
       <t>The SNI extension was specified in 2003 in <xref target="RFC3546"
-      format="default"/> to facilitate management 
+      format="default"/> to facilitate management
 of "colocation servers", in which multiple services shared the same IP
 address. A typical example would be multiple websites served by the
 same web server. The SNI extension carries the name of a specific
@@ -148,7 +148,7 @@ sites for which inspection would intrude on the privacy of employees</li>
         </ul>
         <t>The SNI is probably also included in the general collection of metadata
 by pervasive surveillance actors <xref target="RFC7258" format="default"/>,
-for example, to identify services 
+for example, to identify services
 used by surveillance targets.
 </t>
       </section>
@@ -156,11 +156,11 @@ used by surveillance targets.
         <name>SNI Encryption Timeliness</name>
         <t>The cleartext transmission of the SNI was not flagged as a problem
 in the Security Considerations sections of <xref target="RFC3546"
-format="default"/>, <xref target="RFC4366" format="default"/>, or 
+format="default"/>, <xref target="RFC4366" format="default"/>, or
 <xref target="RFC6066" format="default"/>. These specifications did not anticipate the
 alternative usage described
 in <xref target="snileak" format="default"/>. One reason may be that, when
-these RFCs were written, the 
+these RFCs were written, the
 SNI information was available through a variety of other means,
 such as tracking IP addresses, DNS names, or server certificates.
 </t>
@@ -172,7 +172,7 @@ number of addresses.
 </t>
         <t>The SNI carries the domain name of the server, which is also sent as
 part of the DNS queries. Most of the SNI usage described in <xref
-target="snileak" format="default"/> 
+target="snileak" format="default"/>
 could also be implemented by monitoring DNS traffic or controlling DNS
 usage. But this is changing with the advent of DNS resolvers
 providing services like DNS over TLS <xref target="RFC7858" format="default"/>
@@ -182,13 +182,13 @@ or DNS over HTTPS <xref target="RFC8484" format="default"/>.
         <t>The subjectAltName extension of type dNSName of the server certificate
 (or in its absence, the common name component) exposes
 the same name as the SNI. In TLS versions 1.0 <xref target="RFC2246"
-format="default"/>, 1.1 <xref target="RFC4346" format="default"/>, 
+format="default"/>, 1.1 <xref target="RFC4346" format="default"/>,
 and 1.2 <xref target="RFC5246" format="default"/>, servers send certificates in cleartext,
 ensuring that there would be limited benefits in hiding the SNI. However,
 in TLS 1.3 <xref target="RFC8446" format="default"/>, server certificates are
-encrypted in transit. 
+encrypted in transit.
 Note that encryption alone is insufficient to protect server certificates;
-see <xref target="replayattack" format="default"/> for details.
+see <xref target="cutandpasteattack" format="default"/> for details.
 </t>
 
         <t>The decoupling of IP addresses and server names, deployment of DNS
@@ -206,9 +206,9 @@ see <xref target="replayattack" format="default"/> for details.
 including censorship and pervasive surveillance, but it also
 will break or reduce the efficacy of the operational practices and
 techniques implemented in middleboxes, as described in <xref target="snileak"
-format="default"/>. Most of 
+format="default"/>. Most of
 these functions can, however, be realized by other means. For example, some DNS service
-providers offer customers the provision to "opt in" filtering services
+providers offer customers the provision to "opt in" to filtering services
 for parental control and phishing protection. Per-stream QoS could be provided by
 a combination of packet marking and end-to-end agreements. As
 SNI encryption becomes common, we can expect more deployment of such "end-to-end"
@@ -233,13 +233,13 @@ many of these proposals appeared promising but were rejected
 after security reviews identified plausible attacks. In this section,
 we collect a list of these known attacks.
 </t>
-      <section anchor="replayattack" numbered="true" toc="default">
-        <name>Mitigate Replay Attacks</name>
+      <section anchor="cutandpasteattack" numbered="true" toc="default">
+        <name>Mitigate Cut-and-Paste Attacks</name>
         <t>The simplest SNI encryption designs
 	replace the cleartext SNI in the initial TLS
-   exchange with 
+   exchange with
 an encrypted value, using a key known to the multiplexed server. Regardless of the
-encryption used, these designs can be broken by a simple replay attack, which works
+encryption used, these designs can be broken by a simple cut-and-paste attack, which works
 as follows:
 </t>
 <ol spacing="normal" type="1">
@@ -248,12 +248,11 @@ as follows:
         <li>The adversary observes the exchange and copies the encrypted SNI parameter.</li>
         <li>The adversary starts its own connection to the multiplexed server, including in its
    connection parameters the encrypted SNI copied from the observed exchange.</li>
-        <li>The multiplexed server establishes the connection to the protected service, thus
-   revealing the identity of the service.</li>
+        <li>The multiplexed server establishes the connection to the protected service, which sends its certificate, thus revealing the identity of the service.</li>
 </ol>
 
         <t>One of the goals of SNI encryption is to prevent adversaries from knowing which
-hidden service the client is using. Successful replay attacks break that goal by
+hidden service the client is using. Successful cut-and-paste attacks break that goal by
 allowing adversaries to discover that service.</t>
 
       </section>
@@ -325,7 +324,7 @@ MITM attack is troubling.
 </t>
         <t>There are other classes of solutions in which the master secret is verified by
 verifying a certificate provided by the protected service. These solutions offer
-more protection against a MITM attack by the fronting service. 
+more protection against a MITM attack by the fronting service.
 The
 downside is that the client will not verify the identity of the fronting service,
 which enables fronting server spoofing attacks, such as the "honeypot" attack
@@ -359,22 +358,22 @@ or spoofed IP-level routing, combined with a spoofed certificate.
       <section anchor="multi-protocol" numbered="true" toc="default">
         <name>Support Multiple Protocols</name>
         <t>The SNI encryption requirement does not stop with HTTP over
-	TLS. 
-Multiple other 
+	TLS.
+Multiple other
 applications currently use TLS, including, for example, SMTP <xref
-target="RFC3207" format="default"/>, 
+target="RFC3207" format="default"/>,
 DNS <xref target="RFC7858" format="default"/>, IMAP <xref target="RFC8314"
-format="default"/>, 
+format="default"/>,
 and the Extensible Messaging and Presence Protocol (XMPP) <xref target="RFC7590"
 format="default"/>. These applications, too,
-will benefit from SNI encryption. 
+will benefit from SNI encryption.
 HTTP-only methods, like those described in <xref target="httpfrontingtunnels"
-format="default"/>, 
+format="default"/>,
 would not apply there. In fact, even for the HTTPS case, the HTTPS tunneling
 service described in <xref target="httpfrontingtunnels" format="default"/> is
-compatible with HTTP 1.0 and HTTP 1.1 
+compatible with HTTP 1.0 and HTTP 1.1
 but interacts awkwardly with the multiple streams feature of HTTP/2 <xref
-target="RFC7540" format="default"/>. 
+target="RFC7540" format="default"/>.
 This points to the need for an application-agnostic solution, which would be
 implemented fully in the TLS layer.
 </t>
@@ -387,14 +386,14 @@ implemented fully in the TLS layer.
 	  does not create the same privacy issues as exposing the SNI, there
 	  is still a risk. For example, some networks may attempt to block
 	  applications that they do not understand or that they wish users
-	  would not use. 
+	  would not use.
 </t>
           <t>In a sense, ALPN filtering could be very similar to the filtering
 of specific port numbers exposed in some networks. This filtering by ports
 has given rise to evasion tactics in which various protocols are tunneled
 over HTTP in order to use open ports 80 or 443. Filtering by ALPN would
 probably beget the same responses, in which the applications just move
-over HTTP and only the HTTP ALPN values are used. 
+over HTTP and only the HTTP ALPN values are used.
 Applications would not
 need to do that if the ALPN were hidden in the same way as the SNI.
 </t>
@@ -406,7 +405,7 @@ need to do that if the ALPN were hidden in the same way as the SNI.
 </t>
         </section>
         <section anchor="support-other-transports-than-tcp" numbered="true"
-		 toc="default"> 
+		 toc="default">
           <name>Supporting Other Transports than TCP</name>
           <t>The TLS handshake is also used over other transports, such as UDP
 with both DTLS <xref target="I-D.ietf-tls-dtls13" format="default"/> and
@@ -426,7 +425,7 @@ be applicable to non-TCP transports such as DTLS or QUIC.
       "HTTP co-tenancy" solution, often referred to as "domain fronting" <xref
       target="DOMFRONT" format="default"/>. The TLS connection is established
       with the fronting server, and HTTP requests are then sent over that
-      connection to the hidden service. 
+      connection to the hidden service.
 For example, the TLS SNI could be set
       to "fronting.example.com" (the fronting server), and HTTP requests sent
       over that connection could be directed to "hidden.example.com"
@@ -448,17 +447,19 @@ are "co-tenants" of the same multiplexed server.
 	the client has no cryptographic proof that the content does, in fact,
 	come from the hidden service. Thus, the solution does not mitigate the
 	context sharing issues described in <xref target="nocontextsharing"
-	format="default"/>.</li> 
+	format="default"/>. Note that this is already the case for
+        co-tenanted sites.</li>
         <li>Since this is an HTTP-level solution, it does not protect non-HTTP
 protocols, as discussed in <xref target="multi-protocol" format="default"/>.</li>
       </ul>
+
       <t>The discovery issue is common to most SNI encryption solutions.
 The browser issue was solved in <xref target="DOMFRONT" format="default"/> by
 implementing domain fronting as a pluggable transport for the Tor browser. The
 multi-protocol issue can be mitigated by implementing other
 applications over HTTP, for example, DNS over HTTPS <xref
 target="RFC8484" format="default"/>. The trust issue, however, requires
-specific developments. 
+specific developments.
 </t>
       <section anchor="httpfrontingtunnels" numbered="true" toc="default">
         <name>HTTPS Tunnels</name>
@@ -470,7 +471,7 @@ specific developments.
 	hidden server. This will establish an end-to-end HTTPS-over-TLS
 	connection between the client and the hidden server, mitigating the
 	issues described in <xref target="nocontextsharing"
-	format="default"/>.  
+	format="default"/>.
 </t>
         <t>The HTTPS-in-HTTPS solution requires double encryption of every packet. It
 also requires that the fronting server decrypt and relay messages to the
@@ -486,7 +487,7 @@ way to indicate which fronting server is acceptable by the hidden service.
 </t>
         <t>This problem is both similar and different from the "fronting server
 spoofing" attack described in <xref target="nocontextsharing"
-format="default"/>. Here, the spoofing 
+format="default"/>. Here, the spoofing
 would be performed by distributing fake advice, such as "to reach
 hidden.example.com, use fake.example.com as a fronting
 server", when "fake.example.com" is under the control of an
@@ -502,7 +503,7 @@ adversary.
         <t>There are several proposed solutions to this problem, such as creating
 a special form of certificate to codify the relation between the fronting and
 hidden server or obtaining the relation between the hidden and fronting service
-through the DNS, possibly using DNSSEC, to avoid spoofing. 
+through the DNS, possibly using DNSSEC, to avoid spoofing.
 The experiment
 described in <xref target="DOMFRONT" format="default"/> solved the issue by
 integrating with the Lantern Internet circumvention tool.
@@ -542,7 +543,7 @@ compromises.
       <t>In particular, the requirement to not stick out, presented in
 <xref target="snireqdontstickout" format="default"/>, may have to be lifted,
 especially for proposed solutions that could quickly reach large-scale
-deployments. 
+deployments.
 </t>
       <t>Replacing cleartext SNI transmission by an encrypted variant will
       break or reduce the efficacy of the operational practices and techniques
